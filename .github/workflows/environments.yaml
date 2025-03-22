@@ -2,21 +2,36 @@ name: Working with Environments
 
 on:
     workflow_dispatch: 
-        inputs:
-            target-env:
-                type: environment
-                default: pre
+        
+            
 
-run-name: Working with Envoiroments | env - ${{inputs.target-env}}
 
 jobs:
-    echo:
-        environment: ${{inputs.target-env}}
+    deploy-pre:
+        environment: pre
         env:
-            my_env_value:  "${{vars.MY_ENV_VALUE != '' && vars.MY_ENV_VALUE || 'default value'}}"
+            my_env_value:  ${{vars.MY_ENV_VALUE != '' && vars.MY_ENV_VALUE || 'default value'}}
         runs-on: ubuntu-latest
         steps:
             - name: Echo vars
               run: |
-                echo Env variable: ${{env.my_env_value}}
+                echo Deploying to PRE
+            
+    e2e-test:
+        runs-on: ubuntu-latest
+        if: ${{success()}}
+        steps:
+            - name: E2E test
+              run: echo Running E2E
+
+    deploy-pro:
+        runs-on: ubuntu-latest
+        if: ${{success()}}
+        environment: pro
+        env:
+            my-env-value: ${{vars.MY_ENV_VALUE != '' && vars.MY_ENV_VALUE || 'default value'}}
+        steps:
+            - name: Echo vars
+              run: echo Deploying to PRO   
+
               
